@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">PurrFeed</string>
+    <string name="app_tagline">Infinite stream of adorable cats</string>
+
+    <!-- Filter chips -->
+    <string name="filter_all">All Cats</string>
+    <string name="filter_photos">Photos</string>
+    <string name="filter_gifs">GIFs</string>
+    <string name="filter_liked">Liked</string>
+
+    <!-- First-time hint -->
+    <string name="first_time_hint">Swipe up to discover more cats</string>
+
+    <!-- Actions & Badges -->
+    <string name="like_action">Like</string>
+    <string name="share_action">Share</string>
+    <string name="copy_action">Copy link</string>
+    <string name="share_cat_text">Check out this adorable cat: %s</string>
+    <string name="link_copied">Cat link copied to clipboard</string>
+    <string name="gif_badge">GIF</string>
+    <string name="photo_badge">PHOTO</string>
+    <string name="liked_empty">No liked cats yet. Double-tap or press the heart to save cats!</string>
+    <string name="loading_cats">Loading cute cats...</string>
+</resources>

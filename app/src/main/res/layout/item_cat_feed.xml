@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#242B3A"
+    app:cardBackgroundColor="@color/card_background">
+
+    <FrameLayout
+        android:id="@+id/cardContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Main Cat Image / Animated GIF -->
+        <ImageView
+            android:id="@+id/catImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/app_name"
+            android:scaleType="centerCrop" />
+
+        <!-- Loading spinner while fetching/decoding -->
+        <ProgressBar
+            android:id="@+id/loadingIndicator"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary"
+            android:visibility="visible" />
+
+        <!-- Center animated heart for double-tap -->
+        <ImageView
+            android:id="@+id/doubleTapHeart"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_heart_filled"
+            android:alpha="0"
+            android:scaleX="0.2"
+            android:scaleY="0.2"
+            android:visibility="gone"
+            android:contentDescription="@string/like_action" />
+
+        <!-- Bottom gradient scrim -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_gradient_scrim" />
+
+        <!-- Bottom info section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="72dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="24dp">
+
+            <!-- Type badge (GIF / PHOTO) -->
+            <TextView
+                android:id="@+id/mediaTypeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge_photo"
+                android:text="@string/photo_badge"
+                android:textColor="@color/onPrimary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"
+                tools:text="GIF" />
+
+            <!-- Cat title / tags -->
+            <TextView
+                android:id="@+id/catTagsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/onBackground"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:ellipsize="end"
+                android:maxLines="2"
+                tools:text="#cute #playful #sleepy" />
+
+            <!-- Cat ID / source subtitle -->
+            <TextView
+                android:id="@+id/catIdText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/onSurfaceVariant"
+                android:textSize="12sp"
+                tools:text="ID: bC319kLo" />
+        </LinearLayout>
+
+        <!-- Right side floating action buttons -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="28dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <!-- Like button -->
+            <ImageButton
+                android:id="@+id/btnLike"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_action_circle"
+                android:contentDescription="@string/like_action"
+                android:src="@drawable/ic_heart_outline"
+                android:padding="12dp"
+                app:tint="@color/like_inactive" />
+
+            <TextView
+                android:id="@+id/likeCountText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/onBackground"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:text="0" />
+
+            <!-- Share button -->
+            <ImageButton
+                android:id="@+id/btnShare"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_action_circle"
+                android:contentDescription="@string/share_action"
+                android:src="@drawable/ic_share_cat"
+                android:padding="12dp"
+                app:tint="@color/like_inactive" />
+
+            <!-- Copy button -->
+            <ImageButton
+                android:id="@+id/btnCopy"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_action_circle"
+                android:contentDescription="@string/copy_action"
+                android:src="@drawable/ic_copy"
+                android:padding="12dp"
+                app:tint="@color/like_inactive" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+</com.google.android.material.card.MaterialCardView>
