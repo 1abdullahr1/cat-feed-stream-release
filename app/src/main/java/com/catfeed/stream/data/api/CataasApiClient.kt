@@ -4,101 +4,159 @@ import com.catfeed.stream.data.model.CatItem
 import com.catfeed.stream.data.model.CataasResponse
 import com.catfeed.stream.data.model.FilterMode
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
 
 class CataasApiClient {
 
     private val gson = Gson()
+    private val pageSkipCounter = AtomicInteger(0)
 
     private val client: OkHttpClient = OkHttpClient.Builder()
-        .connectionPool(ConnectionPool(10, 5, TimeUnit.MINUTES))
-        .connectTimeout(12, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
+        .connectionPool(ConnectionPool(15, 5, TimeUnit.MINUTES))
+        .connectTimeout(8, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .build()
 
     private val popularTags = listOf(
-        "cute", "sleepy", "kitten", "playful", "fluffy", "funny",
-        "whiskers", "paws", "tabby", "calico", "black", "white", "orange"
+        "cute", "playful", "kitten", "sleepy", "fluffy", "purr",
+        "tabby", "calico", "whiskers", "paws", "sweet", "orange"
     )
 
-    suspend fun fetchCatBatch(mode: FilterMode, count: Int = 8): List<CatItem> = coroutineScope {
-        val deferredList = (1..count).map {
-            async(Dispatchers.IO) {
-                fetchSingleCat(mode)
-            }
-        }
-        deferredList.awaitAll().filterNotNull()
-    }
+    suspend fun fetchCatBatch(mode: FilterMode, count: Int = 10): List<CatItem> = withContext(Dispatchers.IO) {
+        val result = mutableListOf<CatItem>()
 
-    private suspend fun fetchSingleCat(mode: FilterMode): CatItem? = withContext(Dispatchers.IO) {
-        val requestUrl = when (mode) {
-            FilterMode.GIFS -> "https://cataas.com/cat/gif?json=true"
-            FilterMode.PHOTOS -> "https://cataas.com/cat?json=true"
-            FilterMode.ALL, FilterMode.LIKED -> {
-                if (Random.nextFloat() < 0.35f) {
-                    "https://cataas.com/cat/gif?json=true"
-                } else {
-                    "https://cataas.com/cat?json=true"
-                }
-            }
-        }
-
+        // 1. First attempt: TheCatAPI CloudFront CDN (sub-100ms global edge delivery)
         try {
-            val request = Request.Builder()
-                .url(requestUrl)
-                .header("Accept", "application/json")
-                .header("User-Agent", "PurrFeed/1.0")
-                .build()
-
-            client.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
-                    val bodyString = response.body?.string()
-                    if (!bodyString.isNullOrBlank()) {
-                        val parsed = gson.fromJson(bodyString, CataasResponse::class.java)
-                        val id = parsed.getEffectiveId().ifBlank { UUID.randomUUID().toString() }
-                        val isGif = parsed.isAnimatedGif() || requestUrl.contains("gif")
-                        val fullUrl = if (id.isNotBlank()) "https://cataas.com/cat/$id" else requestUrl.replace("?json=true", "")
-                        val tags = parsed.tags?.filter { it.isNotBlank() } ?: getRandomTags()
-
-                        return@withContext CatItem(
-                            id = id,
-                            url = fullUrl,
-                            isGif = isGif,
-                            tags = if (tags.isEmpty()) getRandomTags() else tags
-                        )
-                    }
-                }
+            val cdnItems = fetchFromTheCatApi(mode, count)
+            if (cdnItems.isNotEmpty()) {
+                result.addAll(cdnItems)
             }
         } catch (_: Exception) {
-            // Silently fall back to a random seed direct URL so user never suffers network interruptions
+            // Silently proceed to Cataas batch endpoint
         }
 
-        // Resilient fallback item
-        val fallbackId = UUID.randomUUID().toString().take(8)
-        val isGif = (mode == FilterMode.GIFS) || (mode == FilterMode.ALL && Random.nextFloat() < 0.3f)
-        val fallbackUrl = if (isGif) {
-            "https://cataas.com/cat/gif?t=${System.currentTimeMillis()}_$fallbackId"
-        } else {
-            "https://cataas.com/cat?t=${System.currentTimeMillis()}_$fallbackId"
+        // 2. Second attempt / Supplement: Cataas batch endpoint
+        if (result.size < count) {
+            try {
+                val needed = count - result.size
+                val cataasItems = fetchFromCataasBatch(mode, needed)
+                result.addAll(cataasItems)
+            } catch (_: Exception) {
+                // Silently proceed to resilient fallback
+            }
         }
 
-        CatItem(
-            id = "cat_$fallbackId",
-            url = fallbackUrl,
-            isGif = isGif,
-            tags = getRandomTags()
-        )
+        // 3. Fallback: If network is severely constrained, generate direct CDN URLs so user never sees empty screens
+        if (result.isEmpty()) {
+            result.addAll(generateFallbackBatch(mode, count))
+        }
+
+        result
+    }
+
+    private fun fetchFromTheCatApi(mode: FilterMode, count: Int): List<CatItem> {
+        val urlBuilder = StringBuilder("https://api.thecatapi.com/v1/images/search?limit=").append(count)
+        when (mode) {
+            FilterMode.GIFS -> urlBuilder.append("&mime_types=gif")
+            FilterMode.PHOTOS -> urlBuilder.append("&mime_types=jpg,png")
+            FilterMode.ALL, FilterMode.LIKED -> {
+                // Return mixed content
+            }
+        }
+
+        val request = Request.Builder()
+            .url(urlBuilder.toString())
+            .header("Accept", "application/json")
+            .header("User-Agent", "PurrFeed/1.0")
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return emptyList()
+            val body = response.body?.string() ?: return emptyList()
+
+            val listType = object : TypeToken<List<CataasResponse>>() {}.type
+            val parsedList: List<CataasResponse> = gson.fromJson(body, listType) ?: return emptyList()
+
+            return parsedList.mapNotNull { item ->
+                val fullUrl = item.url
+                if (fullUrl.isNullOrBlank()) return@mapNotNull null
+                val isGif = fullUrl.endsWith(".gif", ignoreCase = true) || item.isAnimatedGif()
+                val id = item.getEffectiveId().ifBlank { UUID.randomUUID().toString().take(8) }
+
+                CatItem(
+                    id = id,
+                    url = fullUrl,
+                    isGif = isGif,
+                    tags = getRandomTags()
+                )
+            }
+        }
+    }
+
+    private fun fetchFromCataasBatch(mode: FilterMode, count: Int): List<CatItem> {
+        val skip = pageSkipCounter.getAndAdd(count) % 200
+        val urlBuilder = StringBuilder("https://cataas.com/api/cats?limit=").append(count).append("&skip=").append(skip)
+        if (mode == FilterMode.GIFS) {
+            urlBuilder.append("&tags=gif")
+        }
+
+        val request = Request.Builder()
+            .url(urlBuilder.toString())
+            .header("Accept", "application/json")
+            .header("User-Agent", "PurrFeed/1.0")
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) return emptyList()
+            val body = response.body?.string() ?: return emptyList()
+
+            val listType = object : TypeToken<List<CataasResponse>>() {}.type
+            val parsedList: List<CataasResponse> = gson.fromJson(body, listType) ?: return emptyList()
+
+            return parsedList.mapNotNull { item ->
+                val id = item.getEffectiveId()
+                if (id.isBlank()) return@mapNotNull null
+                val isGif = item.isAnimatedGif() || (item.tags?.any { it.equals("gif", ignoreCase = true) } == true)
+                val fullUrl = "https://cataas.com/cat/$id"
+                val tags = item.tags?.filter { it.isNotBlank() && !it.equals("gif", ignoreCase = true) }
+
+                CatItem(
+                    id = id,
+                    url = fullUrl,
+                    isGif = isGif,
+                    tags = if (tags.isNullOrEmpty()) getRandomTags() else tags
+                )
+            }
+        }
+    }
+
+    private fun generateFallbackBatch(mode: FilterMode, count: Int): List<CatItem> {
+        return (1..count).map {
+            val fallbackId = UUID.randomUUID().toString().take(8)
+            val isGif = (mode == FilterMode.GIFS) || (mode == FilterMode.ALL && Random.nextFloat() < 0.35f)
+            val fallbackUrl = if (isGif) {
+                "https://cataas.com/cat/gif?t=${System.currentTimeMillis()}_$fallbackId"
+            } else {
+                "https://cataas.com/cat?t=${System.currentTimeMillis()}_$fallbackId"
+            }
+
+            CatItem(
+                id = "cat_$fallbackId",
+                url = fallbackUrl,
+                isGif = isGif,
+                tags = getRandomTags()
+            )
+        }
     }
 
     private fun getRandomTags(): List<String> {

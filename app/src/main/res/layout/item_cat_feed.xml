@@ -18,13 +18,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Main Cat Image / Animated GIF -->
+        <!-- Ambient blurred backdrop to gracefully fill margins without cropping -->
+        <ImageView
+            android:id="@+id/ambientBackdropView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:alpha="0.25"
+            android:contentDescription="@null" />
+
+        <!-- Ambient overlay scrim -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#400F1115" />
+
+        <!-- Main Cat Image / Animated GIF: 100% true native aspect ratio, zero stretch -->
         <ImageView
             android:id="@+id/catImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop" />
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/app_name" />
 
         <!-- Loading spinner while fetching/decoding -->
         <ProgressBar

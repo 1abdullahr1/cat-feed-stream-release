@@ -19,9 +19,12 @@ import coil.imageLoader
 import coil.load
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import coil.size.Precision
+import coil.size.Scale
 import com.catfeed.stream.R
 import com.catfeed.stream.data.model.CatItem
 import com.catfeed.stream.databinding.ItemCatFeedBinding
+import kotlin.math.min
 
 class CatFeedAdapter(
     private val onLikeClicked: (CatItem) -> Unit,
@@ -42,10 +45,12 @@ class CatFeedAdapter(
         val item = getItem(position)
         holder.bind(item)
 
-        // Pre-fetch the next item into Coil image cache for instant, zero-delay rendering
-        val nextPos = position + 1
-        if (nextPos < itemCount) {
-            preloadImage(holder.itemView.context, getItem(nextPos).url)
+        // 5-Item Predictive Lookahead Prefetching:
+        // Prefetches the next 5 items into Coil RAM and Disk cache for 0ms swipe latency
+        val context = holder.itemView.context
+        val endPos = min(position + 5, itemCount - 1)
+        for (nextPos in (position + 1)..endPos) {
+            preloadImage(context, getItem(nextPos).url)
         }
     }
 
@@ -55,6 +60,8 @@ class CatFeedAdapter(
             .data(url)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .diskCachePolicy(CachePolicy.ENABLED)
+            .allowHardware(true)
+            .precision(Precision.INEXACT)
             .build()
         context.imageLoader.enqueue(request)
     }
@@ -121,7 +128,7 @@ class CatFeedAdapter(
                 binding.mediaTypeBadge.setBackgroundResource(R.drawable.bg_badge_photo)
             }
 
-            // Tags
+            // Tags & info
             val formattedTags = if (item.tags.isNotEmpty()) {
                 item.tags.joinToString(" ") { "#${it.trim()}" }
             } else {
@@ -133,10 +140,19 @@ class CatFeedAdapter(
             // Like state
             updateLikeUi(item.isLiked)
 
-            // Image loading with progress indicator
+            // 1. Ambient blurred backdrop (fast downsampled decode for background ambiance)
+            binding.ambientBackdropView.load(item.url) {
+                size(120, 120)
+                scale(Scale.FILL)
+                precision(Precision.INEXACT)
+                crossfade(150)
+            }
+
+            // 2. Main Cat Image / GIF in true original size & aspect ratio (zero stretch)
             binding.loadingIndicator.visibility = View.VISIBLE
             binding.catImageView.load(item.url) {
-                crossfade(true)
+                allowHardware(true)
+                crossfade(180)
                 listener(
                     onSuccess = { _, _ ->
                         binding.loadingIndicator.visibility = View.GONE

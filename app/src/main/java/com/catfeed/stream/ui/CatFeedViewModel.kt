@@ -67,7 +67,7 @@ class CatFeedViewModel(
             _isRefreshing.value = true
             isFetching = true
             try {
-                val newCats = repository.fetchMoreCats(mode, count = 8)
+                val newCats = repository.fetchMoreCats(mode, count = 10)
                 _feedItems.value = newCats
                 _isEmpty.value = newCats.isEmpty()
             } catch (_: Exception) {
@@ -86,7 +86,7 @@ class CatFeedViewModel(
             _isLoadingMore.value = true
             isFetching = true
             try {
-                val moreCats = repository.fetchMoreCats(_currentFilter.value, count = 8)
+                val moreCats = repository.fetchMoreCats(_currentFilter.value, count = 10)
                 if (moreCats.isNotEmpty()) {
                     val currentList = _feedItems.value.toMutableList()
                     val existingIds = currentList.map { it.id }.toSet()

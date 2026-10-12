@@ -4,15 +4,19 @@ import com.google.gson.annotations.SerializedName
 
 data class CataasResponse(
     @SerializedName("_id")
-    val id: String?,
+    val id: String? = null,
     @SerializedName("id")
-    val idAlt: String?,
+    val idAlt: String? = null,
     @SerializedName("mimetype")
-    val mimetype: String?,
+    val mimetype: String? = null,
     @SerializedName("tags")
-    val tags: List<String>?,
+    val tags: List<String>? = null,
     @SerializedName("url")
-    val url: String?
+    val url: String? = null,
+    @SerializedName("width")
+    val width: Int? = null,
+    @SerializedName("height")
+    val height: Int? = null
 ) {
     fun getEffectiveId(): String {
         return id ?: idAlt ?: ""
