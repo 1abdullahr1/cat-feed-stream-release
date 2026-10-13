@@ -10,6 +10,9 @@
 local.properties
 *.apk
 *.aab
+release.keystore
+*.keystore
+*.jks
 
 # Built files
 app/build/

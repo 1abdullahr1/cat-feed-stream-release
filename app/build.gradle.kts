@@ -20,11 +20,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -43,6 +45,20 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+
+    signingConfigs {
+        create("release") {
+            // In CI (GitHub Actions) a keystore is generated at this location.
+            // For a Play-Store build, override with a real keystore via secrets.
+            val keystoreFile = file("release.keystore")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "android"
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "catfeed"
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: "android"
+            }
+        }
     }
 }
 
