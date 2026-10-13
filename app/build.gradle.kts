@@ -18,6 +18,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            // In CI (GitHub Actions) a keystore is generated at this location.
+            // For a Play-Store build, override with a real keystore via secrets.
+            val keystoreFile = file("release.keystore")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "android"
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "catfeed"
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: "android"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -45,20 +59,6 @@ android {
 
     buildFeatures {
         viewBinding = true
-    }
-
-    signingConfigs {
-        create("release") {
-            // In CI (GitHub Actions) a keystore is generated at this location.
-            // For a Play-Store build, override with a real keystore via secrets.
-            val keystoreFile = file("release.keystore")
-            if (keystoreFile.exists()) {
-                storeFile = keystoreFile
-                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: "android"
-                keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "catfeed"
-                keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: "android"
-            }
-        }
     }
 }
 
