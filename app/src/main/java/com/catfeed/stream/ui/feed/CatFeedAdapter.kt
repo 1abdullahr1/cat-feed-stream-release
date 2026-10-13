@@ -26,6 +26,8 @@ import com.catfeed.stream.data.model.CatItem
 import com.catfeed.stream.databinding.ItemCatFeedBinding
 import kotlin.math.min
 
+private const val PREFETCH_LOOKAHEAD = 8
+
 private val KID_CAT_NAMES = listOf(
     "Fluffy Kitten",
     "Silly Whiskers",
@@ -37,6 +39,17 @@ private val KID_CAT_NAMES = listOf(
     "Cuddly Cat",
     "Snuggly Furball",
     "Playful Paws"
+)
+
+private val SOUND_WORDS = listOf(
+    "Meow!",
+    "Purr purr!",
+    "So fluffy!",
+    "So cute!",
+    "Nom nom!",
+    "Boop!",
+    "Zoom zoom!",
+    "Cozy kitty!"
 )
 
 class CatFeedAdapter(
@@ -58,9 +71,11 @@ class CatFeedAdapter(
         val item = getItem(position)
         holder.bind(item, position)
 
-        // 5-item predictive lookahead prefetching for zero-latency swipe
+        // Aggressive predictive lookahead prefetching (8 items) for zero-latency swipe.
+        // Prefetches adjacent URLs into Coil memory + disk cache so the next cards are
+        // already decoded before the child scrolls into view.
         val context = holder.itemView.context
-        val endPos = min(position + 5, itemCount - 1)
+        val endPos = min(position + PREFETCH_LOOKAHEAD, itemCount - 1)
         for (nextPos in (position + 1)..endPos) {
             preloadImage(context, getItem(nextPos).url)
         }
@@ -143,13 +158,8 @@ class CatFeedAdapter(
             // Kid-friendly name based on position (deterministic, changes per scroll)
             binding.catTagsText.text = KID_CAT_NAMES[position % KID_CAT_NAMES.size]
 
-            // Tags as subtitle
-            val formattedTags = if (item.tags.isNotEmpty()) {
-                item.tags.joinToString(" ") { "#${it.trim()}" }
-            } else {
-                "#cat #purr"
-            }
-            binding.catIdText.text = formattedTags
+            // Playful sound-word subtitle (no meaningless hashtags for kids)
+            binding.catIdText.text = SOUND_WORDS[position % SOUND_WORDS.size]
 
             // Like state
             updateLikeUi(item.isLiked)
@@ -162,11 +172,13 @@ class CatFeedAdapter(
                 crossfade(150)
             }
 
-            // Main cat image / GIF
+            // Main cat image / GIF - prefetch + Coil cache keep it instant on scroll
             binding.loadingIndicator.visibility = View.VISIBLE
             binding.catImageView.load(item.url) {
                 allowHardware(true)
-                crossfade(200)
+                crossfade(120)
+                memoryCachePolicy(CachePolicy.ENABLED)
+                diskCachePolicy(CachePolicy.ENABLED)
                 listener(
                     onSuccess = { _, _ ->
                         binding.loadingIndicator.visibility = View.GONE

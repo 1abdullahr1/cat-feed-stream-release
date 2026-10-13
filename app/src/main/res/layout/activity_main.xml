@@ -95,9 +95,15 @@
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="@string/filter_all"
-                    android:textColor="@color/onBackground"
+                    android:textColor="@color/chip_text"
+                    android:textSize="15sp"
+                    app:chipIcon="@drawable/ic_cat_paw"
+                    app:chipIconTint="@color/chip_icon_tint"
                     app:chipBackgroundColor="@color/chip_bg"
-                    app:chipStrokeWidth="0dp" />
+                    app:chipStrokeWidth="0dp"
+
+                    app:iconStartPadding="6dp"
+                    app:chipIconSize="18dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPhotos"
@@ -105,9 +111,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_photos"
-                    android:textColor="@color/onBackground"
+                    android:textColor="@color/chip_text"
+                    android:textSize="15sp"
+                    app:chipIcon="@drawable/ic_filter_photo"
+                    app:chipIconTint="@color/chip_icon_tint"
                     app:chipBackgroundColor="@color/chip_bg"
-                    app:chipStrokeWidth="0dp" />
+                    app:chipStrokeWidth="0dp"
+
+                    app:iconStartPadding="6dp"
+                    app:chipIconSize="18dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipGifs"
@@ -115,9 +127,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_gifs"
-                    android:textColor="@color/onBackground"
+                    android:textColor="@color/chip_text"
+                    android:textSize="15sp"
+                    app:chipIcon="@drawable/ic_filter_sparkle"
+                    app:chipIconTint="@color/chip_icon_tint"
                     app:chipBackgroundColor="@color/chip_bg"
-                    app:chipStrokeWidth="0dp" />
+                    app:chipStrokeWidth="0dp"
+
+                    app:iconStartPadding="6dp"
+                    app:chipIconSize="18dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipLiked"
@@ -125,9 +143,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_liked"
-                    android:textColor="@color/onBackground"
+                    android:textColor="@color/chip_text"
+                    android:textSize="15sp"
+                    app:chipIcon="@drawable/ic_heart_filled"
+                    app:chipIconTint="@color/chip_icon_tint"
                     app:chipBackgroundColor="@color/chip_bg"
-                    app:chipStrokeWidth="0dp" />
+                    app:chipStrokeWidth="0dp"
+
+                    app:iconStartPadding="6dp"
+                    app:chipIconSize="18dp" />
 
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>

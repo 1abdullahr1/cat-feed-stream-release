@@ -4,8 +4,11 @@ import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +33,7 @@ import com.catfeed.stream.util.AppPreferences
 import com.catfeed.stream.util.CatBufferManager
 import com.catfeed.stream.util.CatMediaExporter
 import com.catfeed.stream.util.CatShareHelper
+import com.catfeed.stream.util.SoundFxPlayer
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var feedAdapter: CatFeedAdapter
     private lateinit var preferences: AppPreferences
     private lateinit var bufferManager: CatBufferManager
+    private lateinit var soundFx: SoundFxPlayer
 
     private var hintBounceAnimator: ObjectAnimator? = null
     private var pendingDownloadCat: CatItem? = null
@@ -67,6 +72,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         preferences = AppPreferences(this)
+        soundFx = SoundFxPlayer(this)
+
+        // Ensure the downloadable rounded font (Baloo 2) is ready before text is drawn
+        requestKidFont()
 
         val database = CatDatabase.getInstance(applicationContext)
         val apiClient = CataasApiClient()
@@ -88,16 +97,56 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Requests the downloadable rounded font (Baloo 2) from the font provider so that
+     * views using @font/baloo2 render with the playful kid typeface. Falls back silently
+     * to the system font if the provider is unavailable.
+     */
+    private fun requestKidFont() {
+        val request = androidx.core.provider.FontRequest(
+            "com.google.android.gms.fonts",
+            "com.google.android.gms",
+            "name=Baloo 2&weight=400",
+            R.array.com_google_android_gms_fonts_certs
+        )
+        val callback = object : androidx.core.provider.FontsContractCompat.FontRequestCallback() {
+            override fun onTypefaceRetrieved(typeface: Typeface) {
+                // Font is now cached by the provider; themed views pick it up.
+            }
+
+            override fun onTypefaceRequestFailed(reason: Int) {
+                // Ignore: views keep the default system font.
+            }
+        }
+        androidx.core.provider.FontsContractCompat.requestFont(
+            this,
+            request,
+            callback,
+            Handler(Looper.getMainLooper())
+        )
+    }
+
     private fun setupRecyclerView() {
         feedAdapter = CatFeedAdapter(
-            onLikeClicked = { cat -> viewModel.toggleLike(cat) },
-            onShareClicked = { cat -> lifecycleScope.launch { shareCat(cat) } },
+            onLikeClicked = { cat ->
+                viewModel.toggleLike(cat)
+                soundFx.playLike()
+            },
+            onShareClicked = { cat ->
+                soundFx.playShare()
+                lifecycleScope.launch { shareCat(cat) }
+            },
             onDownloadClicked = { cat -> handleDownloadRequest(cat) }
         )
 
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        // Prefetch a few items ahead so their images start loading before they are visible
+        layoutManager.initialPrefetchItemCount = 4
         binding.feedRecyclerView.layoutManager = layoutManager
         binding.feedRecyclerView.adapter = feedAdapter
+        // Keep a small pool of bound item views ready to reduce re-inflate cost while scrolling
+        binding.feedRecyclerView.setItemViewCacheSize(4)
+        binding.feedRecyclerView.setHasFixedSize(true)
 
         // Buttery TikTok/Shorts style vertical card snapping
         val snapHelper = PagerSnapHelper()
@@ -226,6 +275,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun downloadCat(cat: CatItem) {
+        soundFx.playDownload()
         lifecycleScope.launch {
             val saved = CatMediaExporter.saveToGallery(
                 context = this@MainActivity,
@@ -256,5 +306,6 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         hintBounceAnimator?.cancel()
         hintBounceAnimator = null
+        soundFx.release()
     }
 }

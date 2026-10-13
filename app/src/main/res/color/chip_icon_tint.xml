@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected chip: white icon -->
+    <item android:state_checked="true" android:color="@color/chip_text_selected" />
+    <!-- Unselected chip: coral text color -->
+    <item android:color="@color/chip_text_base" />
+</selector>

@@ -32,6 +32,11 @@
 
     <color name="card_background">#FFFFFF</color>
 
+    <!-- Text over the dark image scrim (badge, cat name, sound-word) -->
+    <color name="onScrim">#FFFFFFFF</color>
+    <color name="onScrimSecondary">#F2FFFFFF</color>
+    <color name="scrim_shadow">#99000000</color>
+
     <!-- Action Colors -->
     <color name="paw_liked">#FF2D55</color>
     <color name="paw_normal">#FFFFFF</color>
@@ -42,10 +47,10 @@
     <color name="badge_gif">#FF5A79</color>
     <color name="badge_photo">#FFB84C</color>
 
-    <!-- Chip Colors -->
-    <color name="chip_bg">#FFE8ED</color>
+    <!-- Chip base colors (state selectors live in res/color/chip_bg.xml & chip_text.xml) -->
+    <color name="chip_bg_base">#FFE8ED</color>
     <color name="chip_bg_selected">#FF5A79</color>
-    <color name="chip_text">#BF3A5A</color>
+    <color name="chip_text_base">#BF3A5A</color>
     <color name="chip_text_selected">#FFFFFF</color>
 
     <!-- Saved to gallery confirmation color -->

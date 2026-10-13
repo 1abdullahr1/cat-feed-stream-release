@@ -39,6 +39,16 @@
     <string name="cat_name_7">Purring Friend</string>
     <string name="cat_name_8">Cuddly Cat</string>
 
+    <!-- Playful sound-words shown under the cat name (kid friendly, no hashtags) -->
+    <string name="sound_1">Meow!</string>
+    <string name="sound_2">Purr purr!</string>
+    <string name="sound_3">So fluffy!</string>
+    <string name="sound_4">So cute!</string>
+    <string name="sound_5">Nom nom!</string>
+    <string name="sound_6">Boop!</string>
+    <string name="sound_7">Zoom zoom!</string>
+    <string name="sound_8">Cozy kitty!</string>
+
     <!-- Empty / Buffer states -->
     <string name="liked_empty">No liked kitties yet! Double-tap or press the paw to save your favourites!</string>
     <string name="loading_cats">Finding cute kitties...</string>

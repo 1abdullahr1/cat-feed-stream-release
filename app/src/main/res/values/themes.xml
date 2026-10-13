@@ -1,5 +1,9 @@
 <resources>
     <style name="Theme.CatFeedStream" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Kid-friendly rounded font applied to all text -->
+        <item name="fontFamily">@font/baloo2</item>
+        <item name="android:fontFamily">@font/baloo2</item>
+
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/onPrimary</item>
         <item name="colorPrimaryContainer">@color/primaryContainer</item>

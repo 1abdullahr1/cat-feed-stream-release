@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected chip: coral fill -->
+    <item android:state_checked="true" android:color="@color/chip_bg_selected" />
+    <!-- Unselected chip: soft pink fill -->
+    <item android:color="@color/chip_bg_base" />
+</selector>
