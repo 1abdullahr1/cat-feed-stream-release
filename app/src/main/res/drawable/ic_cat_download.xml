@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Rounded chunky arrow pointing down -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11,4 C11,3.45 11.45,3 12,3 C12.55,3 13,3.45 13,4 L13,12.59 L16.3,9.29 C16.69,8.9 17.32,8.9 17.71,9.29 C18.1,9.68 18.1,10.31 17.71,10.7 L12.71,15.7 C12.32,16.09 11.69,16.09 11.3,15.7 L6.3,10.7 C5.91,10.31 5.91,9.68 6.3,9.29 C6.69,8.9 7.32,8.9 7.71,9.29 L11,12.59 L11,4 Z" />
+    <!-- Rounded base tray / tray bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M5,19 C4.45,19 4,19.45 4,20 C4,20.55 4.45,21 5,21 L19,21 C19.55,21 20,20.55 20,20 C20,19.45 19.55,19 19,19 L5,19 Z" />
+</vector>

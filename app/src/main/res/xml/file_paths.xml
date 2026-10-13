@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path name="cache_images" path="." />
+    <files-path name="cat_buffer" path="cat_buffer/" />
+    <external-cache-path name="ext_cache" path="." />
+</paths>

@@ -5,10 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [LikedCatEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [LikedCatEntity::class, BufferedCatEntity::class],
+    version = 2,
+    exportSchema = false
+)
 abstract class CatDatabase : RoomDatabase() {
 
     abstract fun likedCatDao(): LikedCatDao
+    abstract fun bufferedCatDao(): BufferedCatDao
 
     companion object {
         @Volatile

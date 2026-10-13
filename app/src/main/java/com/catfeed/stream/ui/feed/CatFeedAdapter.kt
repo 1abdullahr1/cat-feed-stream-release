@@ -26,10 +26,23 @@ import com.catfeed.stream.data.model.CatItem
 import com.catfeed.stream.databinding.ItemCatFeedBinding
 import kotlin.math.min
 
+private val KID_CAT_NAMES = listOf(
+    "Fluffy Kitten",
+    "Silly Whiskers",
+    "Sleepy Paws",
+    "Happy Kitty",
+    "Bouncy Furball",
+    "Tiny Meow",
+    "Purring Friend",
+    "Cuddly Cat",
+    "Snuggly Furball",
+    "Playful Paws"
+)
+
 class CatFeedAdapter(
     private val onLikeClicked: (CatItem) -> Unit,
     private val onShareClicked: (CatItem) -> Unit,
-    private val onCopyClicked: (CatItem) -> Unit
+    private val onDownloadClicked: (CatItem) -> Unit
 ) : ListAdapter<CatItem, CatFeedAdapter.CatViewHolder>(CatDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatViewHolder {
@@ -43,10 +56,9 @@ class CatFeedAdapter(
 
     override fun onBindViewHolder(holder: CatViewHolder, position: Int) {
         val item = getItem(position)
-        holder.bind(item)
+        holder.bind(item, position)
 
-        // 5-Item Predictive Lookahead Prefetching:
-        // Prefetches the next 5 items into Coil RAM and Disk cache for 0ms swipe latency
+        // 5-item predictive lookahead prefetching for zero-latency swipe
         val context = holder.itemView.context
         val endPos = min(position + 5, itemCount - 1)
         for (nextPos in (position + 1)..endPos) {
@@ -78,7 +90,7 @@ class CatFeedAdapter(
                     val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val item = getItem(position)
-                        triggerDoubleTapHeartAnimation()
+                        triggerPawAnimation()
                         if (!item.isLiked) {
                             onLikeClicked(item)
                         }
@@ -108,39 +120,41 @@ class CatFeedAdapter(
                 }
             }
 
-            binding.btnCopy.setOnClickListener {
+            binding.btnDownload.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    onCopyClicked(getItem(position))
+                    onDownloadClicked(getItem(position))
                 }
             }
         }
 
-        fun bind(item: CatItem) {
+        fun bind(item: CatItem, position: Int) {
             val context = binding.root.context
 
-            // Badge text & color
+            // Badge
             if (item.isGif) {
                 binding.mediaTypeBadge.text = context.getString(R.string.gif_badge)
-                binding.mediaTypeBadge.setBackgroundResource(R.drawable.bg_badge_gif)
+                binding.mediaTypeBadge.setBackgroundResource(R.drawable.bg_kid_badge_gif)
             } else {
                 binding.mediaTypeBadge.text = context.getString(R.string.photo_badge)
-                binding.mediaTypeBadge.setBackgroundResource(R.drawable.bg_badge_photo)
+                binding.mediaTypeBadge.setBackgroundResource(R.drawable.bg_kid_badge_photo)
             }
 
-            // Tags & info
+            // Kid-friendly name based on position (deterministic, changes per scroll)
+            binding.catTagsText.text = KID_CAT_NAMES[position % KID_CAT_NAMES.size]
+
+            // Tags as subtitle
             val formattedTags = if (item.tags.isNotEmpty()) {
                 item.tags.joinToString(" ") { "#${it.trim()}" }
             } else {
                 "#cat #purr"
             }
-            binding.catTagsText.text = formattedTags
-            binding.catIdText.text = "ID: ${item.id.take(12)}"
+            binding.catIdText.text = formattedTags
 
             // Like state
             updateLikeUi(item.isLiked)
 
-            // 1. Ambient blurred backdrop (fast downsampled decode for background ambiance)
+            // Ambient blurred backdrop
             binding.ambientBackdropView.load(item.url) {
                 size(120, 120)
                 scale(Scale.FILL)
@@ -148,11 +162,11 @@ class CatFeedAdapter(
                 crossfade(150)
             }
 
-            // 2. Main Cat Image / GIF in true original size & aspect ratio (zero stretch)
+            // Main cat image / GIF
             binding.loadingIndicator.visibility = View.VISIBLE
             binding.catImageView.load(item.url) {
                 allowHardware(true)
-                crossfade(180)
+                crossfade(200)
                 listener(
                     onSuccess = { _, _ ->
                         binding.loadingIndicator.visibility = View.GONE
@@ -167,61 +181,49 @@ class CatFeedAdapter(
         private fun updateLikeUi(isLiked: Boolean) {
             val context = binding.root.context
             if (isLiked) {
-                binding.btnLike.setImageResource(R.drawable.ic_heart_filled)
-                binding.btnLike.setColorFilter(ContextCompat.getColor(context, R.color.like_active))
-                binding.likeCountText.text = "1"
-                binding.likeCountText.setTextColor(ContextCompat.getColor(context, R.color.like_active))
+                binding.btnLike.setImageResource(R.drawable.ic_cat_paw)
+                binding.btnLike.setColorFilter(
+                    ContextCompat.getColor(context, R.color.primary)
+                )
             } else {
-                binding.btnLike.setImageResource(R.drawable.ic_heart_outline)
-                binding.btnLike.setColorFilter(ContextCompat.getColor(context, R.color.like_inactive))
-                binding.likeCountText.text = "0"
-                binding.likeCountText.setTextColor(ContextCompat.getColor(context, R.color.onBackground))
+                binding.btnLike.setImageResource(R.drawable.ic_cat_paw_outline)
+                binding.btnLike.clearColorFilter()
             }
         }
 
-        private fun triggerDoubleTapHeartAnimation() {
-            val heart = binding.doubleTapHeart
-            heart.visibility = View.VISIBLE
-            heart.alpha = 1f
-            heart.scaleX = 0.3f
-            heart.scaleY = 0.3f
+        private fun triggerPawAnimation() {
+            val paw = binding.doubleTapHeart
+            paw.visibility = View.VISIBLE
+            paw.alpha = 1f
+            paw.scaleX = 0.3f
+            paw.scaleY = 0.3f
 
-            val scaleXAnim = ObjectAnimator.ofFloat(heart, View.SCALE_X, 0.3f, 1.25f, 1f)
-            val scaleYAnim = ObjectAnimator.ofFloat(heart, View.SCALE_Y, 0.3f, 1.25f, 1f)
-            val alphaFade = ObjectAnimator.ofFloat(heart, View.ALPHA, 1f, 0f).apply {
-                startDelay = 600
-                duration = 300
+            val scaleX = ObjectAnimator.ofFloat(paw, View.SCALE_X, 0.3f, 1.3f, 1f)
+            val scaleY = ObjectAnimator.ofFloat(paw, View.SCALE_Y, 0.3f, 1.3f, 1f)
+            val fade = ObjectAnimator.ofFloat(paw, View.ALPHA, 1f, 0f).apply {
+                startDelay = 500
+                duration = 350
             }
 
-            val animSet = AnimatorSet().apply {
-                interpolator = OvershootInterpolator(1.4f)
-                duration = 450
-                playTogether(scaleXAnim, scaleYAnim)
+            val anim = AnimatorSet().apply {
+                interpolator = OvershootInterpolator(1.5f)
+                duration = 420
+                playTogether(scaleX, scaleY)
             }
 
-            animSet.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    alphaFade.start()
-                }
+            anim.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) { fade.start() }
+            })
+            fade.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) { paw.visibility = View.GONE }
             })
 
-            alphaFade.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    heart.visibility = View.GONE
-                }
-            })
-
-            animSet.start()
+            anim.start()
         }
     }
 }
 
 class CatDiffCallback : DiffUtil.ItemCallback<CatItem>() {
-    override fun areItemsTheSame(oldItem: CatItem, newItem: CatItem): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: CatItem, newItem: CatItem): Boolean {
-        return oldItem == newItem
-    }
+    override fun areItemsTheSame(oldItem: CatItem, newItem: CatItem) = oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: CatItem, newItem: CatItem) = oldItem == newItem
 }

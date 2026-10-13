@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Playful stylized fish icon -->
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M12,5 C7.5,5 3.5,8.5 2,12 C3.5,15.5 7.5,19 12,19 C14.5,19 17,17.5 19,15.5 L22,18 L21.5,12 L22,6 L19,8.5 C17,6.5 14.5,5 12,5 Z" />
+    <!-- Fish Eye -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6.5,12 C6.5,11.2 5.8,10.5 5,10.5 C4.2,10.5 3.5,11.2 3.5,12 C3.5,12.8 4.2,13.5 5,13.5 C5.8,13.5 6.5,12.8 6.5,12 Z" />
+    <path
+        android:fillColor="#2D3142"
+        android:pathData="M5.5,12 C5.5,11.6 5.2,11.3 4.8,11.3 C4.4,11.3 4.1,11.6 4.1,12 C4.1,12.4 4.4,12.7 4.8,12.7 C5.2,12.7 5.5,12.4 5.5,12 Z" />
+</vector>

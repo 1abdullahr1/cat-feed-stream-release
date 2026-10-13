@@ -1,24 +1,50 @@
 <resources>
-    <string name="app_name">PurrFeed</string>
-    <string name="app_tagline">Infinite stream of adorable cats</string>
+    <string name="app_name">PurrPlay</string>
+    <string name="app_tagline">Endless kitty fun!</string>
 
-    <!-- Filter chips -->
-    <string name="filter_all">All Cats</string>
-    <string name="filter_photos">Photos</string>
-    <string name="filter_gifs">GIFs</string>
-    <string name="filter_liked">Liked</string>
+    <!-- Filter chips (kid-friendly language) -->
+    <string name="filter_all">All Kitties</string>
+    <string name="filter_photos">Kitty Photos</string>
+    <string name="filter_gifs">Bouncy GIFs</string>
+    <string name="filter_liked">My Liked Cats</string>
 
     <!-- First-time hint -->
-    <string name="first_time_hint">Swipe up to discover more cats</string>
+    <string name="first_time_hint">Swipe up to see more cats!</string>
 
-    <!-- Actions & Badges -->
-    <string name="like_action">Like</string>
+    <!-- Actions -->
+    <string name="like_action">Love this kitty!</string>
     <string name="share_action">Share</string>
     <string name="copy_action">Copy link</string>
-    <string name="share_cat_text">Check out this adorable cat: %s</string>
-    <string name="link_copied">Cat link copied to clipboard</string>
-    <string name="gif_badge">GIF</string>
-    <string name="photo_badge">PHOTO</string>
-    <string name="liked_empty">No liked cats yet. Double-tap or press the heart to save cats!</string>
-    <string name="loading_cats">Loading cute cats...</string>
+    <string name="download_action">Save to Gallery</string>
+
+    <!-- Share / Download messages -->
+    <string name="share_cat_text">Look at this adorable kitty!</string>
+    <string name="link_copied">Kitty link copied!</string>
+    <string name="saved_to_gallery">Saved to your Gallery!</string>
+    <string name="saving_image">Saving kitty photo...</string>
+    <string name="save_failed">Could not save the kitty. Try again!</string>
+    <string name="share_failed">Could not share this kitty. Try again!</string>
+
+    <!-- Badges -->
+    <string name="gif_badge">Bouncy GIF</string>
+    <string name="photo_badge">Kitty Photo</string>
+
+    <!-- Kid friendly cat labels -->
+    <string name="cat_name_1">Fluffy Kitten</string>
+    <string name="cat_name_2">Silly Whiskers</string>
+    <string name="cat_name_3">Sleepy Paws</string>
+    <string name="cat_name_4">Happy Kitty</string>
+    <string name="cat_name_5">Bouncy Furball</string>
+    <string name="cat_name_6">Tiny Meow</string>
+    <string name="cat_name_7">Purring Friend</string>
+    <string name="cat_name_8">Cuddly Cat</string>
+
+    <!-- Empty / Buffer states -->
+    <string name="liked_empty">No liked kitties yet! Double-tap or press the paw to save your favourites!</string>
+    <string name="loading_cats">Finding cute kitties...</string>
+    <string name="buffer_status">%d kitties ready to play!</string>
+
+    <!-- Permissions -->
+    <string name="permission_storage_title">Save Photos</string>
+    <string name="permission_storage_message">PurrPlay needs permission to save kitty photos to your gallery.</string>
 </resources>

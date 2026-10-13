@@ -68,7 +68,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:background="@drawable/bg_action_circle"
-                android:src="@drawable/ic_refresh"
+                android:src="@drawable/ic_fish_refresh"
                 android:contentDescription="Refresh Feed"
                 android:padding="8dp"
                 app:tint="@color/onBackground" />
@@ -172,7 +172,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="36dp"
-        android:background="@drawable/bg_hint_pill"
+        android:background="@drawable/bg_kid_hint_pill"
         android:elevation="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
